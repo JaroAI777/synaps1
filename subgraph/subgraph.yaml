@@ -1,0 +1,177 @@
+specVersion: 0.0.5
+schema:
+  file: ./schema.graphql
+dataSources:
+  # SynapseToken
+  - kind: ethereum
+    name: SynapseToken
+    network: arbitrum-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: SynapseToken
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Token
+        - Transfer
+        - Account
+      abis:
+        - name: SynapseToken
+          file: ./abis/SynapseToken.json
+      eventHandlers:
+        - event: Transfer(indexed address,indexed address,uint256)
+          handler: handleTransfer
+        - event: Approval(indexed address,indexed address,uint256)
+          handler: handleApproval
+        - event: FeeCollected(indexed address,indexed address,uint256)
+          handler: handleFeeCollected
+      file: ./src/token.ts
+
+  # PaymentRouter
+  - kind: ethereum
+    name: PaymentRouter
+    network: arbitrum-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: PaymentRouter
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Payment
+        - Escrow
+        - Stream
+        - Agent
+      abis:
+        - name: PaymentRouter
+          file: ./abis/PaymentRouter.json
+      eventHandlers:
+        - event: Payment(indexed address,indexed address,uint256,uint256,bytes32)
+          handler: handlePayment
+        - event: BatchPayment(indexed address,uint256,uint256)
+          handler: handleBatchPayment
+        - event: EscrowCreated(indexed bytes32,indexed address,indexed address,uint256,uint256)
+          handler: handleEscrowCreated
+        - event: EscrowReleased(indexed bytes32,uint256)
+          handler: handleEscrowReleased
+        - event: EscrowRefunded(indexed bytes32)
+          handler: handleEscrowRefunded
+        - event: StreamCreated(indexed bytes32,indexed address,indexed address,uint256,uint256,uint256)
+          handler: handleStreamCreated
+        - event: StreamWithdrawal(indexed bytes32,uint256)
+          handler: handleStreamWithdrawal
+        - event: StreamCancelled(indexed bytes32)
+          handler: handleStreamCancelled
+      file: ./src/payment-router.ts
+
+  # ReputationRegistry
+  - kind: ethereum
+    name: ReputationRegistry
+    network: arbitrum-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: ReputationRegistry
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Agent
+        - Dispute
+        - Rating
+      abis:
+        - name: ReputationRegistry
+          file: ./abis/ReputationRegistry.json
+      eventHandlers:
+        - event: AgentRegistered(indexed address,string,uint256)
+          handler: handleAgentRegistered
+        - event: AgentDeregistered(indexed address)
+          handler: handleAgentDeregistered
+        - event: StakeIncreased(indexed address,uint256)
+          handler: handleStakeIncreased
+        - event: StakeDecreased(indexed address,uint256)
+          handler: handleStakeDecreased
+        - event: ReputationUpdated(indexed address,uint256,uint256)
+          handler: handleReputationUpdated
+        - event: DisputeCreated(indexed bytes32,indexed address,indexed address,string)
+          handler: handleDisputeCreated
+        - event: DisputeResolved(indexed bytes32,bool)
+          handler: handleDisputeResolved
+        - event: AgentSlashed(indexed address,uint256,string)
+          handler: handleAgentSlashed
+        - event: ServiceRated(indexed address,indexed address,string,uint8)
+          handler: handleServiceRated
+      file: ./src/reputation.ts
+
+  # ServiceRegistry
+  - kind: ethereum
+    name: ServiceRegistry
+    network: arbitrum-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: ServiceRegistry
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Service
+        - Quote
+        - Category
+      abis:
+        - name: ServiceRegistry
+          file: ./abis/ServiceRegistry.json
+      eventHandlers:
+        - event: ServiceRegistered(indexed bytes32,indexed address,string,string)
+          handler: handleServiceRegistered
+        - event: ServiceUpdated(indexed bytes32)
+          handler: handleServiceUpdated
+        - event: ServiceActivated(indexed bytes32)
+          handler: handleServiceActivated
+        - event: ServiceDeactivated(indexed bytes32)
+          handler: handleServiceDeactivated
+        - event: QuoteRequested(indexed bytes32,indexed bytes32,indexed address,uint256)
+          handler: handleQuoteRequested
+        - event: QuoteAccepted(indexed bytes32,uint256)
+          handler: handleQuoteAccepted
+        - event: CategoryAdded(string,string)
+          handler: handleCategoryAdded
+      file: ./src/service-registry.ts
+
+  # PaymentChannel
+  - kind: ethereum
+    name: PaymentChannel
+    network: arbitrum-sepolia
+    source:
+      address: "0x0000000000000000000000000000000000000000"
+      abi: PaymentChannel
+      startBlock: 0
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        - Channel
+        - ChannelEvent
+      abis:
+        - name: PaymentChannel
+          file: ./abis/PaymentChannel.json
+      eventHandlers:
+        - event: ChannelOpened(indexed bytes32,indexed address,indexed address,uint256,uint256)
+          handler: handleChannelOpened
+        - event: ChannelFunded(indexed bytes32,indexed address,uint256)
+          handler: handleChannelFunded
+        - event: ChannelClosing(indexed bytes32,uint256)
+          handler: handleChannelClosing
+        - event: ChannelChallenged(indexed bytes32,uint256)
+          handler: handleChannelChallenged
+        - event: ChannelClosed(indexed bytes32,uint256,uint256)
+          handler: handleChannelClosed
+      file: ./src/payment-channel.ts

@@ -1,0 +1,80 @@
+{
+  "name": "synapse-protocol",
+  "version": "1.0.0",
+  "description": "AI-to-AI Payment Protocol - Blockchain infrastructure for autonomous AI agent transactions",
+  "main": "index.js",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "test:coverage": "hardhat coverage",
+    "test:gas": "REPORT_GAS=true hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.js --network localhost",
+    "deploy:sepolia": "hardhat run scripts/deploy.js --network sepolia",
+    "deploy:arbitrum-sepolia": "hardhat run scripts/deploy.js --network arbitrumSepolia",
+    "deploy:arbitrum": "hardhat run scripts/deploy.js --network arbitrumOne",
+    "deploy:mainnet": "hardhat run scripts/deploy.js --network mainnet",
+    "verify": "hardhat verify",
+    "node": "hardhat node",
+    "clean": "hardhat clean",
+    "lint": "solhint 'contracts/**/*.sol'",
+    "lint:fix": "solhint 'contracts/**/*.sol' --fix",
+    "format": "prettier --write 'contracts/**/*.sol' 'tests/**/*.js' 'scripts/**/*.js'",
+    "size": "hardhat size-contracts",
+    "slither": "slither .",
+    "docs": "hardhat docgen"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/synapse-protocol/synapse-protocol.git"
+  },
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "arbitrum",
+    "ai",
+    "payments",
+    "micropayments",
+    "defi",
+    "smart-contracts",
+    "solidity",
+    "web3",
+    "ai-agents",
+    "machine-learning",
+    "layer2"
+  ],
+  "author": "SYNAPSE Protocol Team",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/synapse-protocol/synapse-protocol/issues"
+  },
+  "homepage": "https://synapse-protocol.ai",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.6",
+    "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@nomicfoundation/hardhat-ignition": "^0.15.4",
+    "@nomicfoundation/hardhat-ignition-ethers": "^0.15.4",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.10",
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.5",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "chai": "^4.4.1",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.11.1",
+    "hardhat": "^2.22.2",
+    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-docgen": "^1.3.0",
+    "hardhat-gas-reporter": "^2.0.2",
+    "prettier": "^3.2.5",
+    "prettier-plugin-solidity": "^1.3.1",
+    "solhint": "^4.5.2",
+    "solidity-coverage": "^0.8.11",
+    "typechain": "^8.3.2"
+  },
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.0.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

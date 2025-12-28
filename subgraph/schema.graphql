@@ -1,0 +1,320 @@
+"""
+SYNAPSE Protocol Subgraph Schema
+GraphQL schema for indexing protocol events
+"""
+
+# ==================== Token Entities ====================
+
+type Token @entity {
+  id: ID!
+  name: String!
+  symbol: String!
+  decimals: Int!
+  totalSupply: BigInt!
+  totalBurned: BigInt!
+  totalFeesCollected: BigInt!
+  holderCount: Int!
+  transferCount: Int!
+}
+
+type Account @entity {
+  id: ID! # address
+  balance: BigInt!
+  transfersFrom: [Transfer!]! @derivedFrom(field: "from")
+  transfersTo: [Transfer!]! @derivedFrom(field: "to")
+  paymentsSent: [Payment!]! @derivedFrom(field: "sender")
+  paymentsReceived: [Payment!]! @derivedFrom(field: "recipient")
+  agent: Agent
+  services: [Service!]! @derivedFrom(field: "provider")
+  channelsAsParty1: [Channel!]! @derivedFrom(field: "participant1")
+  channelsAsParty2: [Channel!]! @derivedFrom(field: "participant2")
+}
+
+type Transfer @entity {
+  id: ID! # tx hash + log index
+  from: Account!
+  to: Account!
+  amount: BigInt!
+  fee: BigInt!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+# ==================== Payment Entities ====================
+
+type Payment @entity {
+  id: ID! # paymentId
+  sender: Account!
+  recipient: Account!
+  amount: BigInt!
+  fee: BigInt!
+  paymentId: Bytes!
+  metadata: Bytes
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type BatchPayment @entity {
+  id: ID! # tx hash
+  sender: Account!
+  totalAmount: BigInt!
+  totalFees: BigInt!
+  recipientCount: Int!
+  timestamp: BigInt!
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+type Escrow @entity {
+  id: ID! # escrowId
+  sender: Account!
+  recipient: Account!
+  arbiter: Account!
+  amount: BigInt!
+  deadline: BigInt!
+  paymentId: Bytes!
+  status: EscrowStatus!
+  createdAt: BigInt!
+  releasedAt: BigInt
+  refundedAt: BigInt
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+enum EscrowStatus {
+  PENDING
+  RELEASED
+  REFUNDED
+}
+
+type Stream @entity {
+  id: ID! # streamId
+  sender: Account!
+  recipient: Account!
+  totalAmount: BigInt!
+  withdrawnAmount: BigInt!
+  startTime: BigInt!
+  endTime: BigInt!
+  status: StreamStatus!
+  createdAt: BigInt!
+  cancelledAt: BigInt
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+enum StreamStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+type StreamWithdrawal @entity {
+  id: ID! # tx hash + log index
+  stream: Stream!
+  amount: BigInt!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# ==================== Agent & Reputation Entities ====================
+
+type Agent @entity {
+  id: ID! # address
+  account: Account!
+  name: String!
+  metadataUri: String
+  stake: BigInt!
+  reputationScore: Int!
+  tier: Int!
+  totalTransactions: Int!
+  successfulTransactions: Int!
+  failedTransactions: Int!
+  totalVolumeSent: BigInt!
+  totalVolumeReceived: BigInt!
+  registeredAt: BigInt!
+  deregisteredAt: BigInt
+  active: Boolean!
+  services: [Service!]! @derivedFrom(field: "provider")
+  disputesAsComplainant: [Dispute!]! @derivedFrom(field: "complainant")
+  disputesAsDefendant: [Dispute!]! @derivedFrom(field: "defendant")
+  ratingsGiven: [Rating!]! @derivedFrom(field: "rater")
+  ratingsReceived: [Rating!]! @derivedFrom(field: "provider")
+  slashEvents: [SlashEvent!]! @derivedFrom(field: "agent")
+}
+
+type Dispute @entity {
+  id: ID! # disputeId
+  complainant: Agent!
+  defendant: Agent!
+  reason: String!
+  transactionId: Bytes
+  status: DisputeStatus!
+  inFavorOfComplainant: Boolean
+  createdAt: BigInt!
+  resolvedAt: BigInt
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+enum DisputeStatus {
+  PENDING
+  RESOLVED
+}
+
+type Rating @entity {
+  id: ID! # rater + provider + category
+  rater: Agent!
+  provider: Agent!
+  service: Service
+  category: String!
+  rating: Int!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+type SlashEvent @entity {
+  id: ID! # tx hash + log index
+  agent: Agent!
+  amount: BigInt!
+  reason: String!
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+# ==================== Service Entities ====================
+
+type Service @entity {
+  id: ID! # serviceId
+  provider: Agent!
+  name: String!
+  category: Category!
+  description: String!
+  endpoint: String!
+  basePrice: BigInt!
+  pricingModel: Int!
+  active: Boolean!
+  totalRequests: Int!
+  totalRevenue: BigInt!
+  avgResponseTime: Int
+  successRate: Int
+  uptime: Int
+  createdAt: BigInt!
+  updatedAt: BigInt
+  quotes: [Quote!]! @derivedFrom(field: "service")
+  ratings: [Rating!]! @derivedFrom(field: "service")
+}
+
+type Category @entity {
+  id: ID! # category name
+  name: String!
+  description: String
+  serviceCount: Int!
+  services: [Service!]! @derivedFrom(field: "category")
+  createdAt: BigInt!
+}
+
+type Quote @entity {
+  id: ID! # quoteId
+  service: Service!
+  requester: Account!
+  quantity: Int!
+  price: BigInt!
+  status: QuoteStatus!
+  expiresAt: BigInt!
+  createdAt: BigInt!
+  acceptedAt: BigInt
+  blockNumber: BigInt!
+  transactionHash: Bytes!
+}
+
+enum QuoteStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+}
+
+# ==================== Payment Channel Entities ====================
+
+type Channel @entity {
+  id: ID! # channelId
+  participant1: Account!
+  participant2: Account!
+  balance1: BigInt!
+  balance2: BigInt!
+  totalDeposited: BigInt!
+  nonce: Int!
+  status: ChannelStatus!
+  challengeEnd: BigInt
+  createdAt: BigInt!
+  closedAt: BigInt
+  events: [ChannelEvent!]! @derivedFrom(field: "channel")
+}
+
+enum ChannelStatus {
+  NONE
+  OPEN
+  CLOSING
+  CLOSED
+}
+
+type ChannelEvent @entity {
+  id: ID! # tx hash + log index
+  channel: Channel!
+  eventType: ChannelEventType!
+  actor: Account!
+  amount: BigInt
+  newBalance1: BigInt
+  newBalance2: BigInt
+  nonce: Int
+  timestamp: BigInt!
+  transactionHash: Bytes!
+}
+
+enum ChannelEventType {
+  OPENED
+  FUNDED
+  CLOSING_INITIATED
+  CHALLENGED
+  CLOSED
+}
+
+# ==================== Protocol Stats ====================
+
+type ProtocolStats @entity {
+  id: ID! # "global"
+  totalPayments: Int!
+  totalPaymentVolume: BigInt!
+  totalFees: BigInt!
+  totalAgents: Int!
+  activeAgents: Int!
+  totalServices: Int!
+  activeServices: Int!
+  totalChannels: Int!
+  activeChannels: Int!
+  totalEscrows: Int!
+  totalStreams: Int!
+  updatedAt: BigInt!
+}
+
+type DailyStats @entity {
+  id: ID! # date string YYYY-MM-DD
+  date: Int!
+  paymentCount: Int!
+  paymentVolume: BigInt!
+  feesCollected: BigInt!
+  newAgents: Int!
+  newServices: Int!
+  activeAgents: Int!
+  channelsOpened: Int!
+  channelsClosed: Int!
+}
+
+type HourlyStats @entity {
+  id: ID! # timestamp / 3600
+  timestamp: BigInt!
+  paymentCount: Int!
+  paymentVolume: BigInt!
+  feesCollected: BigInt!
+}
