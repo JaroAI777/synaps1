@@ -1,0 +1,75 @@
+# ==========================================
+# SYNAPSE Protocol - Kubernetes Base Resources
+# ==========================================
+
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: synapse
+  labels:
+    app.kubernetes.io/name: synapse
+    app.kubernetes.io/part-of: synapse-protocol
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synapse-config
+  namespace: synapse
+data:
+  NETWORK: "arbitrum"
+  LOG_LEVEL: "info"
+  GRAPH_NODE_URL: "http://graph-node:8000"
+  REDIS_URL: "redis://redis:6379"
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: synapse-secrets
+  namespace: synapse
+type: Opaque
+stringData:
+  # These should be replaced with actual secrets in production
+  PRIVATE_KEY: ""
+  RPC_URL: ""
+  DATABASE_URL: ""
+  ETHERSCAN_API_KEY: ""
+  JWT_SECRET: ""
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: synapse-api
+  namespace: synapse
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: synapse-api-role
+  namespace: synapse
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "secrets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["pods"]
+    verbs: ["get", "list"]
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: synapse-api-rolebinding
+  namespace: synapse
+subjects:
+  - kind: ServiceAccount
+    name: synapse-api
+    namespace: synapse
+roleRef:
+  kind: Role
+  name: synapse-api-role
+  apiGroup: rbac.authorization.k8s.io

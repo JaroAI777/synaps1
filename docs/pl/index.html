@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNAPSE Protocol | Infrastruktura Płatności AI-AI</title>
+    <meta name="description" content="Pierwszy zdecentralizowany protokół płatności zaprojektowany dla autonomicznych systemów AI. Rozliczenia w ułamkach milisekund, mikropłatności i reputacja bez zaufania.">
+    <meta name="keywords" content="płatności AI, blockchain, DeFi, autonomiczne systemy, kryptowaluty, smart kontrakty">
+    
+    <!-- Open Graph -->
+    <meta property="og:title" content="SYNAPSE Protocol | Infrastruktura Płatności AI-AI">
+    <meta property="og:description" content="Pierwszy zdecentralizowany protokół płatności dla autonomicznych systemów AI.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://synapse-protocol.github.io/pl/">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="../assets/css/main.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="neural-bg">
+        <div class="grid-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">
+                SYNAPSE
+                <span class="logo-sub">PROTOCOL</span>
+            </a>
+            
+            <button class="mobile-menu-btn" aria-label="Menu">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 12h18M3 6h18M3 18h18"/>
+                </svg>
+            </button>
+            
+            <ul class="nav-links">
+                <li><a href="#features">Funkcje</a></li>
+                <li><a href="#architecture">Architektura</a></li>
+                <li><a href="#use-cases">Zastosowania</a></li>
+                <li><a href="#roadmap">Roadmapa</a></li>
+                <li><a href="https://github.com/synapse-protocol/synapse-protocol" target="_blank">GitHub</a></li>
+                
+                <!-- Language Selector -->
+                <li class="lang-selector">
+                    <button class="lang-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <circle cx="12" cy="12" r="10"/>
+                            <path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                        PL
+                    </button>
+                    <div class="lang-dropdown">
+                        <a href="../en/">🇺🇸 English</a>
+                        <a href="../pl/" class="active">🇵🇱 Polski</a>
+                        <a href="../de/">🇩🇪 Deutsch</a>
+                        <a href="../es/">🇪🇸 Español</a>
+                        <a href="../fr/">🇫🇷 Français</a>
+                        <a href="../zh/">🇨🇳 中文</a>
+                        <a href="../ja/">🇯🇵 日本語</a>
+                        <a href="../ko/">🇰🇷 한국어</a>
+                        <a href="../pt/">🇧🇷 Português</a>
+                        <a href="../ru/">🇷🇺 Русский</a>
+                        <a href="../ar/">🇸🇦 العربية</a>
+                    </div>
+                </li>
+                
+                <li><a href="https://docs.synapse.ai" class="nav-cta">Dokumentacja</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="hero-badge">🔥 MAINNET START Q1 2026</div>
+            <h1>Infrastruktura Płatności dla Gospodarki AI</h1>
+            <p class="hero-subtitle">
+                Pierwszy zdecentralizowany protokół płatności zaprojektowany dla autonomicznych systemów AI. 
+                Rozliczenia w ułamkach milisekund, mikropłatności i reputacja bez zaufania.
+            </p>
+            <div class="hero-buttons">
+                <a href="https://docs.synapse.ai" class="btn-primary">Zacznij Budować</a>
+                <a href="https://github.com/synapse-protocol/synapse-protocol" class="btn-secondary" target="_blank">Zobacz na GitHub</a>
+            </div>
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-value" data-count="34" data-suffix="+">0+</div>
+                    <div class="stat-label">Smart Kontraktów</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-count="11">0</div>
+                    <div class="stat-label">Języków SDK</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-count="550" data-suffix="+">0+</div>
+                    <div class="stat-label">Przypadków Testowych</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" data-count="21">0</div>
+                    <div class="stat-label">Usług Backend</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features -->
+    <section id="features" class="features">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-label">Kluczowe Funkcje</div>
+                <h2 class="section-title">Stworzone dla Agentów AI</h2>
+                <p class="section-subtitle">
+                    Każda funkcja zaprojektowana od podstaw dla autonomicznych transakcji maszyna-maszyna
+                </p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Rozliczenia w Ułamkach Milisekund</h3>
+                    <p>Optymistyczne wykonanie z natychmiastową finalizacją. Agenci AI mogą przeprowadzać tysiące transakcji na sekundę bez oczekiwania na potwierdzenia bloków.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🔬</div>
+                    <h3>Prawdziwe Mikropłatności</h3>
+                    <p>Płać ułamki grosza za pojedyncze wywołania API. Brak minimalnych kwot transakcji. Idealne dla płatności za token w LLM.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🛡️</div>
+                    <h3>Reputacja Bez Zaufania</h3>
+                    <p>On-chain wyniki reputacji obliczane z historii transakcji. Agenci AI mogą ocenić ryzyko kontrahenta przed transakcją.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🔄</div>
+                    <h3>Kanały Płatności</h3>
+                    <p>Długoterminowe kanały dwustronne dla par o wysokiej częstotliwości handlu. Rozlicz miliony transakcji jedną operacją on-chain.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🌐</div>
+                    <h3>Natywnie Multi-Chain</h3>
+                    <p>Wdróż na Ethereum, Arbitrum, Polygon, Optimism i Base. Komunikacja cross-chain w pakiecie. Jeden SDK dla wszystkich sieci.</p>
+                </div>
+                <div class="feature-card fade-in">
+                    <div class="feature-icon">🤖</div>
+                    <h3>SDK Natywne dla AI</h3>
+                    <p>Natywne integracje dla Python, JavaScript, Go, Rust i innych. Zaprojektowane dla autonomicznych agentów, nie ludzi.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Architecture -->
+    <section id="architecture" class="architecture">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-label">Projekt Techniczny</div>
+                <h2 class="section-title">Architektura Protokołu</h2>
+                <p class="section-subtitle">
+                    Modularna, rozszerzalna architektura zbudowana dla wymagań handlu AI-AI
+                </p>
+            </div>
+            <div class="arch-diagram fade-in">
+                <div class="arch-layer">
+                    <h4>Warstwa Aplikacji</h4>
+                    <div class="arch-components">
+                        <span class="arch-component">Agenci AI</span>
+                        <span class="arch-component">SDK (11 Języków)</span>
+                        <span class="arch-component">GraphQL API</span>
+                        <span class="arch-component">WebSocket</span>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <h4>Warstwa Protokołu</h4>
+                    <div class="arch-components">
+                        <span class="arch-component">Router Płatności</span>
+                        <span class="arch-component">Rejestr Reputacji</span>
+                        <span class="arch-component">Odkrywanie Usług</span>
+                        <span class="arch-component">Escrow</span>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <h4>Warstwa DeFi</h4>
+                    <div class="arch-components">
+                        <span class="arch-component">Pożyczki</span>
+                        <span class="arch-component">Perpetuals</span>
+                        <span class="arch-component">Opcje</span>
+                        <span class="arch-component">Syntetyki</span>
+                        <span class="arch-component">Yield</span>
+                    </div>
+                </div>
+                <div class="arch-layer">
+                    <h4>Warstwa Rozliczeń</h4>
+                    <div class="arch-components">
+                        <span class="arch-component">Ethereum</span>
+                        <span class="arch-component">Arbitrum</span>
+                        <span class="arch-component">Polygon</span>
+                        <span class="arch-component">Optimism</span>
+                        <span class="arch-component">Base</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Use Cases -->
+    <section id="use-cases" class="use-cases">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-label">Aplikacje</div>
+                <h2 class="section-title">Napędzanie Gospodarki AI</h2>
+                <p class="section-subtitle">
+                    Rzeczywiste przypadki użycia autonomicznego handlu AI
+                </p>
+            </div>
+            <div class="use-cases-grid">
+                <div class="use-case-card fade-in">
+                    <h3>🧠 Rynki Wnioskowania LLM</h3>
+                    <p>Modele AI kupują moc obliczeniową, dane treningowe i specjalistyczną wiedzę od innych systemów AI w czasie rzeczywistym.</p>
+                </div>
+                <div class="use-case-card fade-in">
+                    <h3>📊 Handel Autonomiczny</h3>
+                    <p>Boty handlowe kupują dane rynkowe w czasie rzeczywistym, analizę sentymentu i usługi wykonawcze od innych systemów AI.</p>
+                </div>
+                <div class="use-case-card fade-in">
+                    <h3>🎨 Generowanie Treści</h3>
+                    <p>Generatory obrazów płacą modelom tekstowym za prompty. AI wideo płaci za syntezę głosu. AI muzyczne płaci za teksty.</p>
+                </div>
+                <div class="use-case-card fade-in">
+                    <h3>💻 Rynki Mocy Obliczeniowej</h3>
+                    <p>Systemy AI dynamicznie kupują moc GPU, pamięć i przechowywanie od rozproszonych dostawców.</p>
+                </div>
+                <div class="use-case-card fade-in">
+                    <h3>🏥 AI w Opiece Zdrowotnej</h3>
+                    <p>Diagnostyczne AI płaci systemom analizy obrazowania. AI odkrywające leki kupuje symulacje fałdowania białek.</p>
+                </div>
+                <div class="use-case-card fade-in">
+                    <h3>🤖 Orkiestracja Agentów</h3>
+                    <p>Meta-agenci koordynują zespoły specjalistycznych AI, automatycznie zarządzając przydziałem zadań i wynagrodzeniami.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap -->
+    <section id="roadmap" class="roadmap">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-label">Harmonogram Rozwoju</div>
+                <h2 class="section-title">Roadmapa</h2>
+                <p class="section-subtitle">
+                    Nasza droga do budowy gospodarki AI
+                </p>
+            </div>
+            <div class="timeline">
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">Q1 2026</div>
+                        <h3>Faza Genesis</h3>
+                        <p>Start protokołu na mainnecie Ethereum. Token Generation Event. Początkowe pule stakingowe. Podstawowy routing płatności.</p>
+                    </div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">Q2 2026</div>
+                        <h3>Ekspansja</h3>
+                        <p>Wdrożenie na Arbitrum. Kanały płatności v1. SDK dla Agentów AI (JavaScript, Python). Pierwsze partnerstwa ekosystemu.</p>
+                    </div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">Q3 2026</div>
+                        <h3>Inteligencja</h3>
+                        <p>Start systemu reputacji. Protokół odkrywania usług. Automatyczne rozwiązywanie sporów. Wydanie aplikacji mobilnej.</p>
+                    </div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">Q4 2026</div>
+                        <h3>Zarządzanie</h3>
+                        <p>Pełny start DAO. Zarządzanie on-chain. Aktywacja skarbca. Program grantów społecznościowych.</p>
+                    </div>
+                </div>
+                <div class="timeline-item fade-in">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <div class="timeline-date">2027+</div>
+                        <h3>Skala</h3>
+                        <p>Ekspansja multi-chain. Integracje enterprise. 1M+ agentów AI w sieci.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <h2>Gotowy na Napędzanie Gospodarki AI?</h2>
+        <p>Dołącz do pierwszej zdecentralizowanej sieci płatności zbudowanej specjalnie dla autonomicznych systemów AI.</p>
+        <div class="hero-buttons">
+            <a href="https://docs.synapse.ai" class="btn-primary">Zacznij Budować</a>
+            <a href="https://discord.gg/synapse" class="btn-secondary" target="_blank">Dołącz do Discord</a>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-grid">
+            <div class="footer-brand">
+                <a href="#" class="logo">
+                    SYNAPSE
+                    <span class="logo-sub">PROTOCOL</span>
+                </a>
+                <p>Fundamentalna warstwa płatności dla autonomicznej gospodarki AI. Umożliwiając maszynom transakcje, współpracę i wspólne budowanie wartości.</p>
+                <div class="social-links">
+                    <a href="https://twitter.com/SynapseProtocol" target="_blank" title="Twitter/X" aria-label="Twitter">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                    </a>
+                    <a href="https://discord.gg/synapse" target="_blank" title="Discord" aria-label="Discord">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028 14.09 14.09 0 0 0 1.226-1.994.076.076 0 0 0-.041-.106 13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.928 1.793 8.18 1.793 12.062 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.03zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/>
+                        </svg>
+                    </a>
+                    <a href="https://github.com/synapse-protocol" target="_blank" title="GitHub" aria-label="GitHub">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                        </svg>
+                    </a>
+                    <a href="https://t.me/SynapseProtocol" target="_blank" title="Telegram" aria-label="Telegram">
+                        <svg viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+            <div class="footer-column">
+                <h4>Protokół</h4>
+                <ul>
+                    <li><a href="https://docs.synapse.ai">Dokumentacja</a></li>
+                    <li><a href="#">Whitepaper</a></li>
+                    <li><a href="https://github.com/synapse-protocol">GitHub</a></li>
+                    <li><a href="#">Raporty Audytu</a></li>
+                    <li><a href="#">Bug Bounty</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Deweloperzy</h4>
+                <ul>
+                    <li><a href="#">Dokumentacja SDK</a></li>
+                    <li><a href="#">Smart Kontrakty</a></li>
+                    <li><a href="#">Przewodnik Integracji</a></li>
+                    <li><a href="#">Endpointy API</a></li>
+                    <li><a href="#">Przykłady</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h4>Społeczność</h4>
+                <ul>
+                    <li><a href="https://discord.gg/synapse">Discord</a></li>
+                    <li><a href="https://twitter.com/SynapseProtocol">Twitter</a></li>
+                    <li><a href="https://t.me/SynapseProtocol">Telegram</a></li>
+                    <li><a href="#">Blog</a></li>
+                    <li><a href="#">Zarządzanie</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2025 SYNAPSE Protocol. Wszelkie prawa zastrzeżone.</p>
+            <div class="footer-legal">
+                <a href="#">Polityka Prywatności</a>
+                <a href="#">Regulamin</a>
+                <a href="#">Polityka Cookies</a>
+            </div>
+        </div>
+    </footer>
+
+    <script src="../assets/js/main.js"></script>
+    <script>localStorage.setItem('synapse-lang', 'pl');</script>
+</body>
+</html>

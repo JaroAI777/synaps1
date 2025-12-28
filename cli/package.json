@@ -1,0 +1,41 @@
+{
+  "name": "@synapse-protocol/cli",
+  "version": "1.0.0",
+  "description": "Command-line interface for SYNAPSE Protocol",
+  "main": "index.js",
+  "bin": {
+    "synapse": "./index.js"
+  },
+  "scripts": {
+    "start": "node index.js",
+    "link": "npm link",
+    "test": "jest"
+  },
+  "keywords": [
+    "synapse",
+    "protocol",
+    "cli",
+    "blockchain",
+    "ethereum",
+    "payments",
+    "ai"
+  ],
+  "author": "SYNAPSE Protocol Team",
+  "license": "MIT",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cli-table3": "^0.6.3",
+    "commander": "^11.1.0",
+    "ethers": "^6.11.1",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/synapse-protocol/synapse-protocol.git",
+    "directory": "cli"
+  }
+}

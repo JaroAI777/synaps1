@@ -1,0 +1,562 @@
+# SYNAPSE Protocol - Kubernetes Deployment
+# Main service deployments
+
+---
+# Namespace
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: synapse-protocol
+  labels:
+    app: synapse
+    environment: production
+
+---
+# ConfigMap for shared configuration
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: synapse-config
+  namespace: synapse-protocol
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+  REDIS_URL: "redis://redis-master:6379"
+  DATABASE_URL: "postgresql://postgres:5432/synapse"
+  RPC_URL: "https://arb1.arbitrum.io/rpc"
+  WS_URL: "wss://arb1.arbitrum.io/ws"
+  CHAIN_ID: "42161"
+
+---
+# Secret for sensitive data
+apiVersion: v1
+kind: Secret
+metadata:
+  name: synapse-secrets
+  namespace: synapse-protocol
+type: Opaque
+stringData:
+  DATABASE_PASSWORD: "CHANGE_ME"
+  REDIS_PASSWORD: "CHANGE_ME"
+  JWT_SECRET: "CHANGE_ME"
+  PRIVATE_KEY: "CHANGE_ME"
+
+---
+# API Server Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-server
+  namespace: synapse-protocol
+  labels:
+    app: api-server
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: api-server
+  template:
+    metadata:
+      labels:
+        app: api-server
+    spec:
+      containers:
+      - name: api-server
+        image: synapse/api-server:latest
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "250m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+
+---
+# API Server Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: api-server
+  namespace: synapse-protocol
+spec:
+  selector:
+    app: api-server
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP
+
+---
+# GraphQL Server Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: graphql-server
+  namespace: synapse-protocol
+  labels:
+    app: graphql-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: graphql-server
+  template:
+    metadata:
+      labels:
+        app: graphql-server
+    spec:
+      containers:
+      - name: graphql-server
+        image: synapse/graphql-server:latest
+        ports:
+        - containerPort: 4000
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 4000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+
+---
+# GraphQL Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: graphql-server
+  namespace: synapse-protocol
+spec:
+  selector:
+    app: graphql-server
+  ports:
+  - port: 4000
+    targetPort: 4000
+  type: ClusterIP
+
+---
+# WebSocket Server Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: websocket-server
+  namespace: synapse-protocol
+  labels:
+    app: websocket-server
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: websocket-server
+  template:
+    metadata:
+      labels:
+        app: websocket-server
+    spec:
+      containers:
+      - name: websocket-server
+        image: synapse/websocket-server:latest
+        ports:
+        - containerPort: 3001
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+
+---
+# WebSocket Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: websocket-server
+  namespace: synapse-protocol
+spec:
+  selector:
+    app: websocket-server
+  ports:
+  - port: 3001
+    targetPort: 3001
+  type: ClusterIP
+
+---
+# Event Indexer Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: event-indexer
+  namespace: synapse-protocol
+  labels:
+    app: event-indexer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: event-indexer
+  template:
+    metadata:
+      labels:
+        app: event-indexer
+    spec:
+      containers:
+      - name: event-indexer
+        image: synapse/event-indexer:latest
+        ports:
+        - containerPort: 3006
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+---
+# Price Oracle Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: price-oracle
+  namespace: synapse-protocol
+  labels:
+    app: price-oracle
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: price-oracle
+  template:
+    metadata:
+      labels:
+        app: price-oracle
+    spec:
+      containers:
+      - name: price-oracle
+        image: synapse/price-oracle:latest
+        ports:
+        - containerPort: 3008
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+
+---
+# Keeper Service Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keeper-service
+  namespace: synapse-protocol
+  labels:
+    app: keeper-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: keeper-service
+  template:
+    metadata:
+      labels:
+        app: keeper-service
+    spec:
+      containers:
+      - name: keeper-service
+        image: synapse/keeper-service:latest
+        ports:
+        - containerPort: 3009
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        env:
+        - name: KEEPER_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: synapse-secrets
+              key: PRIVATE_KEY
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# Liquidation Bot Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: liquidation-bot
+  namespace: synapse-protocol
+  labels:
+    app: liquidation-bot
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: liquidation-bot
+  template:
+    metadata:
+      labels:
+        app: liquidation-bot
+    spec:
+      containers:
+      - name: liquidation-bot
+        image: synapse/liquidation-bot:latest
+        ports:
+        - containerPort: 3012
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        env:
+        - name: LIQUIDATOR_PRIVATE_KEY
+          valueFrom:
+            secretKeyRef:
+              name: synapse-secrets
+              key: PRIVATE_KEY
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+
+---
+# Governance Monitor Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: governance-monitor
+  namespace: synapse-protocol
+  labels:
+    app: governance-monitor
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: governance-monitor
+  template:
+    metadata:
+      labels:
+        app: governance-monitor
+    spec:
+      containers:
+      - name: governance-monitor
+        image: synapse/governance-monitor:latest
+        ports:
+        - containerPort: 3013
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "400m"
+
+---
+# Security Scanner Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: security-scanner
+  namespace: synapse-protocol
+  labels:
+    app: security-scanner
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: security-scanner
+  template:
+    metadata:
+      labels:
+        app: security-scanner
+    spec:
+      containers:
+      - name: security-scanner
+        image: synapse/security-scanner:latest
+        ports:
+        - containerPort: 3011
+        envFrom:
+        - configMapRef:
+            name: synapse-config
+        - secretRef:
+            name: synapse-secrets
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+
+---
+# API Gateway (Ingress Controller)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: synapse-ingress
+  namespace: synapse-protocol
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/rate-limit: "100"
+    nginx.ingress.kubernetes.io/rate-limit-window: "1m"
+spec:
+  tls:
+  - hosts:
+    - api.synapse.ai
+    - graphql.synapse.ai
+    - ws.synapse.ai
+    secretName: synapse-tls
+  rules:
+  - host: api.synapse.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: api-server
+            port:
+              number: 3000
+  - host: graphql.synapse.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: graphql-server
+            port:
+              number: 4000
+  - host: ws.synapse.ai
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: websocket-server
+            port:
+              number: 3001
+
+---
+# Horizontal Pod Autoscaler for API Server
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: api-server-hpa
+  namespace: synapse-protocol
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: api-server
+  minReplicas: 3
+  maxReplicas: 10
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 70
+  - type: Resource
+    resource:
+      name: memory
+      target:
+        type: Utilization
+        averageUtilization: 80
+
+---
+# PodDisruptionBudget for API Server
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: api-server-pdb
+  namespace: synapse-protocol
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: api-server
+
+---
+# NetworkPolicy - Restrict internal traffic
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: default-deny-ingress
+  namespace: synapse-protocol
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          name: synapse-protocol
+    - namespaceSelector:
+        matchLabels:
+          name: ingress-nginx

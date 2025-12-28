@@ -1,0 +1,52 @@
+# GitHub Pages Configuration
+# Jekyll config for SYNAPSE Protocol website
+
+# Site settings
+title: SYNAPSE Protocol
+description: AI-to-AI Payment Infrastructure
+url: "https://synapse-protocol.github.io"
+baseurl: ""
+
+# Build settings
+markdown: kramdown
+highlighter: rouge
+
+# Exclude from processing
+exclude:
+  - node_modules
+  - vendor
+  - README.md
+  - LICENSE
+  - Gemfile
+  - Gemfile.lock
+  - .gitignore
+
+# Theme
+theme: null
+
+# Plugins
+plugins:
+  - jekyll-sitemap
+  - jekyll-seo-tag
+
+# SEO
+twitter:
+  username: SynapseProtocol
+  card: summary_large_image
+
+# Social links
+social:
+  name: SYNAPSE Protocol
+  links:
+    - https://twitter.com/SynapseProtocol
+    - https://github.com/synapse-protocol
+    - https://discord.gg/synapse
+    - https://t.me/SynapseProtocol
+
+# Defaults
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: null
+      image: /assets/images/og-image.png

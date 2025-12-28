@@ -1,0 +1,951 @@
+openapi: 3.0.3
+info:
+  title: SYNAPSE Protocol API
+  description: |
+    REST API for SYNAPSE Protocol - AI-to-AI Payment Infrastructure.
+    
+    This API allows AI agents to:
+    - Send and receive payments
+    - Manage escrows and payment streams
+    - Register and discover services
+    - Manage reputation and disputes
+    - Open and manage payment channels
+    
+    ## Authentication
+    All endpoints require a signed message in the `X-Signature` header.
+    The message format is: `{timestamp}:{nonce}:{method}:{path}`
+    
+    ## Rate Limits
+    - 100 requests per minute for read operations
+    - 20 requests per minute for write operations
+    
+  version: 1.0.0
+  contact:
+    name: SYNAPSE Protocol Support
+    url: https://synapse-protocol.ai/support
+    email: support@synapse-protocol.ai
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: https://api.synapse-protocol.ai/v1
+    description: Production API
+  - url: https://api-testnet.synapse-protocol.ai/v1
+    description: Testnet API
+  - url: http://localhost:3000/v1
+    description: Local development
+
+tags:
+  - name: Payments
+    description: Payment operations
+  - name: Agents
+    description: AI Agent management
+  - name: Services
+    description: Service registry operations
+  - name: Channels
+    description: Payment channel operations
+  - name: Stats
+    description: Protocol statistics
+
+paths:
+  # ==================== Payments ====================
+  /payments:
+    post:
+      tags:
+        - Payments
+      summary: Send a payment
+      description: Send a direct SYNX payment to another agent
+      operationId: sendPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequest'
+      responses:
+        '200':
+          description: Payment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaymentResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '402':
+          $ref: '#/components/responses/InsufficientFunds'
+        '500':
+          $ref: '#/components/responses/ServerError'
+
+  /payments/batch:
+    post:
+      tags:
+        - Payments
+      summary: Send batch payments
+      description: Send payments to multiple recipients in a single transaction
+      operationId: sendBatchPayment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchPaymentRequest'
+      responses:
+        '200':
+          description: Batch payment successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchPaymentResponse'
+
+  /payments/{paymentId}:
+    get:
+      tags:
+        - Payments
+      summary: Get payment details
+      description: Retrieve details of a specific payment
+      operationId: getPayment
+      parameters:
+        - name: paymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  # ==================== Escrows ====================
+  /escrows:
+    post:
+      tags:
+        - Payments
+      summary: Create escrow payment
+      description: Create a new escrow payment with arbiter
+      operationId: createEscrow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EscrowRequest'
+      responses:
+        '200':
+          description: Escrow created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Escrow'
+
+  /escrows/{escrowId}/release:
+    post:
+      tags:
+        - Payments
+      summary: Release escrow
+      description: Release funds from escrow to recipient
+      operationId: releaseEscrow
+      parameters:
+        - name: escrowId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Escrow released
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EscrowReleaseResponse'
+
+  # ==================== Streams ====================
+  /streams:
+    post:
+      tags:
+        - Payments
+      summary: Create payment stream
+      description: Create a continuous payment stream
+      operationId: createStream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamRequest'
+      responses:
+        '200':
+          description: Stream created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Stream'
+
+  # ==================== Agents ====================
+  /agents:
+    post:
+      tags:
+        - Agents
+      summary: Register as agent
+      description: Register a new AI agent in the protocol
+      operationId: registerAgent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentRegistrationRequest'
+      responses:
+        '200':
+          description: Agent registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+
+  /agents/{address}:
+    get:
+      tags:
+        - Agents
+      summary: Get agent details
+      description: Retrieve details of a specific agent
+      operationId: getAgent
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /agents/{address}/stake:
+    post:
+      tags:
+        - Agents
+      summary: Increase stake
+      description: Increase agent's staked amount
+      operationId: increaseStake
+      parameters:
+        - name: address
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                amount:
+                  type: string
+                  description: Amount to add to stake (in SYNX)
+      responses:
+        '200':
+          description: Stake increased
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeResponse'
+
+  # ==================== Services ====================
+  /services:
+    get:
+      tags:
+        - Services
+      summary: List services
+      description: List all registered services with optional filters
+      operationId: listServices
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by category
+        - name: active
+          in: query
+          schema:
+            type: boolean
+          description: Filter by active status
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: List of services
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceList'
+    
+    post:
+      tags:
+        - Services
+      summary: Register service
+      description: Register a new AI service
+      operationId: registerService
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceRegistrationRequest'
+      responses:
+        '200':
+          description: Service registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+
+  /services/{serviceId}:
+    get:
+      tags:
+        - Services
+      summary: Get service details
+      description: Retrieve details of a specific service
+      operationId: getService
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Service details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Service'
+
+  /services/{serviceId}/quote:
+    post:
+      tags:
+        - Services
+      summary: Request quote
+      description: Request a price quote for a service
+      operationId: requestQuote
+      parameters:
+        - name: serviceId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuoteRequest'
+      responses:
+        '200':
+          description: Quote created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Quote'
+
+  # ==================== Channels ====================
+  /channels:
+    post:
+      tags:
+        - Channels
+      summary: Open payment channel
+      description: Open a new bidirectional payment channel
+      operationId: openChannel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelOpenRequest'
+      responses:
+        '200':
+          description: Channel opened
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+
+  /channels/{channelId}:
+    get:
+      tags:
+        - Channels
+      summary: Get channel details
+      description: Retrieve details of a payment channel
+      operationId: getChannel
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Channel details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Channel'
+
+  /channels/{channelId}/close:
+    post:
+      tags:
+        - Channels
+      summary: Close channel
+      description: Cooperatively close a payment channel
+      operationId: closeChannel
+      parameters:
+        - name: channelId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelCloseRequest'
+      responses:
+        '200':
+          description: Channel closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelCloseResponse'
+
+  # ==================== Stats ====================
+  /stats:
+    get:
+      tags:
+        - Stats
+      summary: Get protocol statistics
+      description: Retrieve overall protocol statistics
+      operationId: getStats
+      responses:
+        '200':
+          description: Protocol statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProtocolStats'
+
+  /stats/daily:
+    get:
+      tags:
+        - Stats
+      summary: Get daily statistics
+      description: Retrieve daily protocol statistics
+      operationId: getDailyStats
+      parameters:
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Daily statistics
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DailyStats'
+
+components:
+  schemas:
+    # Payment schemas
+    PaymentRequest:
+      type: object
+      required:
+        - recipient
+        - amount
+      properties:
+        recipient:
+          type: string
+          description: Recipient address
+          example: "0x1234567890abcdef..."
+        amount:
+          type: string
+          description: Amount in SYNX
+          example: "10.5"
+        paymentId:
+          type: string
+          description: Optional custom payment ID
+        metadata:
+          type: string
+          description: Optional metadata (hex encoded)
+
+    PaymentResponse:
+      type: object
+      properties:
+        txHash:
+          type: string
+        paymentId:
+          type: string
+        amount:
+          type: string
+        fee:
+          type: string
+        timestamp:
+          type: integer
+
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+        sender:
+          type: string
+        recipient:
+          type: string
+        amount:
+          type: string
+        fee:
+          type: string
+        status:
+          type: string
+          enum: [pending, confirmed, failed]
+        timestamp:
+          type: integer
+        blockNumber:
+          type: integer
+        txHash:
+          type: string
+
+    BatchPaymentRequest:
+      type: object
+      required:
+        - payments
+      properties:
+        payments:
+          type: array
+          items:
+            type: object
+            properties:
+              recipient:
+                type: string
+              amount:
+                type: string
+
+    BatchPaymentResponse:
+      type: object
+      properties:
+        txHash:
+          type: string
+        totalAmount:
+          type: string
+        totalFees:
+          type: string
+        paymentCount:
+          type: integer
+
+    # Escrow schemas
+    EscrowRequest:
+      type: object
+      required:
+        - recipient
+        - arbiter
+        - amount
+        - deadline
+      properties:
+        recipient:
+          type: string
+        arbiter:
+          type: string
+        amount:
+          type: string
+        deadline:
+          type: integer
+          description: Unix timestamp
+
+    Escrow:
+      type: object
+      properties:
+        id:
+          type: string
+        sender:
+          type: string
+        recipient:
+          type: string
+        arbiter:
+          type: string
+        amount:
+          type: string
+        deadline:
+          type: integer
+        status:
+          type: string
+          enum: [pending, released, refunded]
+        createdAt:
+          type: integer
+
+    EscrowReleaseResponse:
+      type: object
+      properties:
+        txHash:
+          type: string
+        escrowId:
+          type: string
+        amount:
+          type: string
+
+    # Stream schemas
+    StreamRequest:
+      type: object
+      required:
+        - recipient
+        - totalAmount
+        - startTime
+        - endTime
+      properties:
+        recipient:
+          type: string
+        totalAmount:
+          type: string
+        startTime:
+          type: integer
+        endTime:
+          type: integer
+
+    Stream:
+      type: object
+      properties:
+        id:
+          type: string
+        sender:
+          type: string
+        recipient:
+          type: string
+        totalAmount:
+          type: string
+        withdrawnAmount:
+          type: string
+        startTime:
+          type: integer
+        endTime:
+          type: integer
+        status:
+          type: string
+          enum: [active, completed, cancelled]
+
+    # Agent schemas
+    AgentRegistrationRequest:
+      type: object
+      required:
+        - name
+        - stake
+      properties:
+        name:
+          type: string
+        metadataUri:
+          type: string
+        stake:
+          type: string
+
+    Agent:
+      type: object
+      properties:
+        address:
+          type: string
+        name:
+          type: string
+        metadataUri:
+          type: string
+        stake:
+          type: string
+        reputationScore:
+          type: integer
+        tier:
+          type: integer
+        tierName:
+          type: string
+        totalTransactions:
+          type: integer
+        successRate:
+          type: number
+        registeredAt:
+          type: integer
+        active:
+          type: boolean
+
+    StakeResponse:
+      type: object
+      properties:
+        txHash:
+          type: string
+        newStake:
+          type: string
+
+    # Service schemas
+    ServiceRegistrationRequest:
+      type: object
+      required:
+        - name
+        - category
+        - endpoint
+        - basePrice
+      properties:
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        endpoint:
+          type: string
+        basePrice:
+          type: string
+        pricingModel:
+          type: integer
+          enum: [0, 1, 2, 3, 4, 5]
+
+    Service:
+      type: object
+      properties:
+        id:
+          type: string
+        provider:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        description:
+          type: string
+        endpoint:
+          type: string
+        basePrice:
+          type: string
+        pricingModel:
+          type: integer
+        active:
+          type: boolean
+        totalRequests:
+          type: integer
+        avgRating:
+          type: number
+
+    ServiceList:
+      type: object
+      properties:
+        services:
+          type: array
+          items:
+            $ref: '#/components/schemas/Service'
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+
+    QuoteRequest:
+      type: object
+      required:
+        - quantity
+      properties:
+        quantity:
+          type: integer
+        specs:
+          type: string
+
+    Quote:
+      type: object
+      properties:
+        id:
+          type: string
+        serviceId:
+          type: string
+        quantity:
+          type: integer
+        price:
+          type: string
+        expiresAt:
+          type: integer
+        status:
+          type: string
+          enum: [pending, accepted, expired]
+
+    # Channel schemas
+    ChannelOpenRequest:
+      type: object
+      required:
+        - counterparty
+        - myDeposit
+      properties:
+        counterparty:
+          type: string
+        myDeposit:
+          type: string
+        theirDeposit:
+          type: string
+
+    Channel:
+      type: object
+      properties:
+        id:
+          type: string
+        participant1:
+          type: string
+        participant2:
+          type: string
+        balance1:
+          type: string
+        balance2:
+          type: string
+        nonce:
+          type: integer
+        status:
+          type: string
+          enum: [none, open, closing, closed]
+        createdAt:
+          type: integer
+
+    ChannelCloseRequest:
+      type: object
+      required:
+        - balance1
+        - balance2
+        - nonce
+        - sig1
+        - sig2
+      properties:
+        balance1:
+          type: string
+        balance2:
+          type: string
+        nonce:
+          type: integer
+        sig1:
+          type: string
+        sig2:
+          type: string
+
+    ChannelCloseResponse:
+      type: object
+      properties:
+        txHash:
+          type: string
+        channelId:
+          type: string
+        finalBalance1:
+          type: string
+        finalBalance2:
+          type: string
+
+    # Stats schemas
+    ProtocolStats:
+      type: object
+      properties:
+        totalPayments:
+          type: integer
+        totalPaymentVolume:
+          type: string
+        totalFees:
+          type: string
+        totalAgents:
+          type: integer
+        activeAgents:
+          type: integer
+        totalServices:
+          type: integer
+        activeServices:
+          type: integer
+        totalChannels:
+          type: integer
+        activeChannels:
+          type: integer
+
+    DailyStats:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        paymentCount:
+          type: integer
+        paymentVolume:
+          type: string
+        feesCollected:
+          type: string
+        newAgents:
+          type: integer
+        newServices:
+          type: integer
+
+    # Error schemas
+    Error:
+      type: object
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    InsufficientFunds:
+      description: Insufficient funds
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    ServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+  securitySchemes:
+    SignatureAuth:
+      type: apiKey
+      in: header
+      name: X-Signature
+      description: Signed message for authentication
+
+security:
+  - SignatureAuth: []

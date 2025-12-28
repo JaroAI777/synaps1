@@ -1,0 +1,30 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: synapse
+
+labels:
+  - pairs:
+      app.kubernetes.io/managed-by: kustomize
+      app.kubernetes.io/part-of: synapse-protocol
+    includeSelectors: false
+
+resources:
+  - namespace.yaml
+  - api-deployment.yaml
+  - frontend.yaml
+  - redis.yaml
+  - postgres.yaml
+  - ingress.yaml
+
+configMapGenerator:
+  - name: synapse-config
+    behavior: merge
+    literals:
+      - ENVIRONMENT=development
+
+images:
+  - name: synapse-protocol/api
+    newTag: latest
+  - name: synapse-protocol/frontend
+    newTag: latest

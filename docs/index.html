@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYNAPSE Protocol | AI-to-AI Payment Infrastructure</title>
+    <meta name="description" content="The first decentralized payment protocol designed for autonomous AI systems.">
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E⚡%3C/text%3E%3C/svg%3E">
+    
+    <style>
+        body {
+            background: #05050a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .loader {
+            text-align: center;
+            color: #00f5ff;
+        }
+        .logo {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #00f5ff, #ff00f5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 1rem;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(0, 245, 255, 0.2);
+            border-top-color: #00f5ff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="loader">
+        <div class="logo">SYNAPSE</div>
+        <div class="spinner"></div>
+    </div>
+
+    <script>
+        (function() {
+            // Get saved language or detect from browser
+            const savedLang = localStorage.getItem('synapse-lang');
+            const browserLang = navigator.language.split('-')[0];
+            const supportedLangs = ['en', 'pl', 'de', 'es', 'fr', 'zh', 'ja', 'ko', 'pt', 'ru', 'ar'];
+            
+            let lang = savedLang;
+            if (!lang) {
+                lang = supportedLangs.includes(browserLang) ? browserLang : 'en';
+            }
+            
+            // Redirect to language-specific page
+            window.location.href = './' + lang + '/';
+        })();
+    </script>
+    
+    <noscript>
+        <meta http-equiv="refresh" content="0; url=./en/">
+    </noscript>
+</body>
+</html>
