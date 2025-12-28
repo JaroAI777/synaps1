@@ -1,0 +1,45 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Hardhat node metrics
+  - job_name: 'hardhat'
+    static_configs:
+      - targets: ['hardhat:8545']
+    metrics_path: /metrics
+    scheme: http
+
+  # Graph node metrics
+  - job_name: 'graph-node'
+    static_configs:
+      - targets: ['graph-node:8040']
+    metrics_path: /metrics
+
+  # API metrics
+  - job_name: 'api'
+    static_configs:
+      - targets: ['api:3000']
+    metrics_path: /metrics
+
+  # Redis metrics (if using redis_exporter)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['redis:6379']
+
+  # PostgreSQL metrics (if using postgres_exporter)
+  - job_name: 'postgres'
+    static_configs:
+      - targets: ['postgres:5432']

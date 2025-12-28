@@ -1,0 +1,12 @@
+apiVersion: 1
+
+providers:
+  - name: 'SYNAPSE Dashboards'
+    orgId: 1
+    folder: 'SYNAPSE Protocol'
+    folderUid: 'synapse'
+    type: file
+    disableDeletion: false
+    editable: true
+    options:
+      path: /var/lib/grafana/dashboards

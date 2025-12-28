@@ -1,0 +1,401 @@
+# SYNAPSE Protocol - Prometheus Alert Rules
+# Comprehensive monitoring alerts for production deployment
+
+groups:
+  # ============================================
+  # Service Health Alerts
+  # ============================================
+  - name: service_health
+    interval: 30s
+    rules:
+      - alert: ServiceDown
+        expr: up{job=~"synapse-.*"} == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Service {{ $labels.job }} is down"
+          description: "{{ $labels.job }} has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: |
+          sum(rate(http_requests_total{status=~"5.."}[5m])) by (job)
+          / sum(rate(http_requests_total[5m])) by (job) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High error rate on {{ $labels.job }}"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.job }}."
+
+      - alert: HighLatency
+        expr: |
+          histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket[5m])) by (le, job))
+          > 2
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High latency on {{ $labels.job }}"
+          description: "95th percentile latency is {{ $value }}s on {{ $labels.job }}."
+
+      - alert: ServiceRestarting
+        expr: changes(process_start_time_seconds{job=~"synapse-.*"}[15m]) > 2
+        labels:
+          severity: warning
+        annotations:
+          summary: "Service {{ $labels.job }} is restarting frequently"
+          description: "{{ $labels.job }} has restarted {{ $value }} times in 15 minutes."
+
+  # ============================================
+  # Blockchain Alerts
+  # ============================================
+  - name: blockchain
+    interval: 1m
+    rules:
+      - alert: IndexerLag
+        expr: synapse_indexer_block_lag > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Event indexer is lagging behind"
+          description: "Indexer is {{ $value }} blocks behind current block."
+
+      - alert: IndexerLagCritical
+        expr: synapse_indexer_block_lag > 1000
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Event indexer critically behind"
+          description: "Indexer is {{ $value }} blocks behind. Events may be missed."
+
+      - alert: RPCErrors
+        expr: rate(synapse_rpc_errors_total[5m]) > 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High RPC error rate"
+          description: "RPC calls failing at {{ $value }} per second."
+
+      - alert: GasPriceSpike
+        expr: synapse_gas_price_gwei > 100
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "Gas price spike detected"
+          description: "Current gas price is {{ $value }} gwei."
+
+      - alert: TransactionStuck
+        expr: synapse_pending_transactions_age_seconds > 600
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Transaction stuck in pending"
+          description: "Transaction has been pending for {{ $value }}s."
+
+  # ============================================
+  # Smart Contract Alerts
+  # ============================================
+  - name: smart_contracts
+    interval: 1m
+    rules:
+      - alert: ContractPaused
+        expr: synapse_contract_paused == 1
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Contract {{ $labels.contract }} is paused"
+          description: "Smart contract has been paused. User operations blocked."
+
+      - alert: LowContractBalance
+        expr: synapse_contract_balance_eth < 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low ETH balance in {{ $labels.contract }}"
+          description: "Contract ETH balance is {{ $value }} ETH. May need refunding."
+
+      - alert: HighFeeAccumulation
+        expr: synapse_protocol_fees_unclaimed > 100000
+        for: 30m
+        labels:
+          severity: info
+        annotations:
+          summary: "High unclaimed protocol fees"
+          description: "{{ $value }} SYNX in unclaimed fees. Consider collecting."
+
+      - alert: UnusualTransactionVolume
+        expr: |
+          rate(synapse_payment_volume_total[1h]) 
+          > 2 * avg_over_time(synapse_payment_volume_total[24h])
+        for: 30m
+        labels:
+          severity: info
+        annotations:
+          summary: "Unusual transaction volume detected"
+          description: "Transaction volume is significantly higher than average."
+
+  # ============================================
+  # Bridge Alerts
+  # ============================================
+  - name: bridge
+    interval: 30s
+    rules:
+      - alert: BridgeValidatorDown
+        expr: synapse_bridge_validators_active < synapse_bridge_validators_required
+        for: 2m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Insufficient bridge validators"
+          description: "Only {{ $value }} validators active, need {{ $labels.required }}."
+
+      - alert: BridgePendingHigh
+        expr: synapse_bridge_pending_requests > 50
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High number of pending bridge requests"
+          description: "{{ $value }} bridge requests pending validation."
+
+      - alert: BridgeRequestStuck
+        expr: synapse_bridge_oldest_pending_seconds > 3600
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Bridge request stuck"
+          description: "Oldest bridge request is {{ $value }}s old."
+
+      - alert: BridgeDailyLimitApproaching
+        expr: synapse_bridge_daily_volume / synapse_bridge_daily_limit > 0.9
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "Bridge daily limit approaching"
+          description: "Bridge has used {{ $value | humanizePercentage }} of daily limit."
+
+  # ============================================
+  # Staking Alerts
+  # ============================================
+  - name: staking
+    interval: 1m
+    rules:
+      - alert: LowStakingRewards
+        expr: synapse_staking_reward_balance < synapse_staking_reward_rate * 86400 * 7
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low staking reward balance"
+          description: "Staking rewards will run out in less than 7 days."
+
+      - alert: StakingRewardsEmpty
+        expr: synapse_staking_reward_balance == 0
+        for: 5m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Staking rewards depleted"
+          description: "No rewards available for stakers. Immediate action required."
+
+      - alert: MassUnstaking
+        expr: rate(synapse_unstake_requests_total[1h]) > 10
+        for: 30m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High unstaking activity detected"
+          description: "{{ $value }} unstake requests per hour. Possible bank run."
+
+  # ============================================
+  # Infrastructure Alerts
+  # ============================================
+  - name: infrastructure
+    interval: 30s
+    rules:
+      - alert: HighMemoryUsage
+        expr: |
+          (node_memory_MemTotal_bytes - node_memory_MemAvailable_bytes)
+          / node_memory_MemTotal_bytes > 0.9
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High memory usage on {{ $labels.instance }}"
+          description: "Memory usage is {{ $value | humanizePercentage }}."
+
+      - alert: HighCPUUsage
+        expr: |
+          100 - (avg by(instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High CPU usage on {{ $labels.instance }}"
+          description: "CPU usage is {{ $value }}%."
+
+      - alert: DiskSpaceLow
+        expr: |
+          (node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"}) < 0.1
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low disk space on {{ $labels.instance }}"
+          description: "Only {{ $value | humanizePercentage }} disk space remaining."
+
+      - alert: RedisDown
+        expr: redis_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Redis is down"
+          description: "Redis server is not responding."
+
+      - alert: PostgresDown
+        expr: pg_up == 0
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "PostgreSQL is down"
+          description: "PostgreSQL database is not responding."
+
+      - alert: HighRedisMemory
+        expr: redis_memory_used_bytes / redis_memory_max_bytes > 0.8
+        for: 10m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value | humanizePercentage }}."
+
+      - alert: PostgresConnectionsHigh
+        expr: |
+          pg_stat_activity_count / pg_settings_max_connections > 0.8
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High PostgreSQL connections"
+          description: "{{ $value | humanizePercentage }} of max connections used."
+
+  # ============================================
+  # Security Alerts
+  # ============================================
+  - name: security
+    interval: 30s
+    rules:
+      - alert: UnauthorizedAccessAttempt
+        expr: rate(synapse_auth_failures_total[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High authentication failure rate"
+          description: "{{ $value }} auth failures per second. Possible attack."
+
+      - alert: RateLimitExceeded
+        expr: rate(synapse_rate_limit_exceeded_total[5m]) > 100
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High rate limit violations"
+          description: "{{ $value }} rate limit violations per second."
+
+      - alert: SuspiciousLargeTransaction
+        expr: synapse_transaction_amount > 1000000
+        for: 0s
+        labels:
+          severity: info
+        annotations:
+          summary: "Large transaction detected"
+          description: "Transaction of {{ $value }} SYNX detected."
+
+      - alert: AdminActionDetected
+        expr: increase(synapse_admin_actions_total[5m]) > 0
+        for: 0s
+        labels:
+          severity: info
+        annotations:
+          summary: "Admin action performed"
+          description: "Admin action {{ $labels.action }} performed on {{ $labels.contract }}."
+
+  # ============================================
+  # Treasury Alerts
+  # ============================================
+  - name: treasury
+    interval: 1m
+    rules:
+      - alert: TreasuryTransactionPending
+        expr: synapse_treasury_pending_transactions > 0
+        for: 2h
+        labels:
+          severity: info
+        annotations:
+          summary: "Treasury transaction pending"
+          description: "{{ $value }} treasury transactions awaiting signatures."
+
+      - alert: TreasuryEmergencyMode
+        expr: synapse_treasury_emergency_mode == 1
+        for: 0s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Treasury in emergency mode"
+          description: "Treasury emergency mode has been activated!"
+
+      - alert: TreasuryLowBalance
+        expr: synapse_treasury_balance < 100000
+        for: 1h
+        labels:
+          severity: warning
+        annotations:
+          summary: "Low treasury balance"
+          description: "Treasury balance is {{ $value }} SYNX."
+
+  # ============================================
+  # API Gateway Alerts
+  # ============================================
+  - name: api_gateway
+    interval: 30s
+    rules:
+      - alert: CircuitBreakerOpen
+        expr: synapse_circuit_breaker_state == 1
+        for: 1m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Circuit breaker open for {{ $labels.service }}"
+          description: "Service {{ $labels.service }} is experiencing issues."
+
+      - alert: HighGatewayLatency
+        expr: |
+          histogram_quantile(0.99, rate(synapse_gateway_request_duration_seconds_bucket[5m])) > 5
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High gateway latency"
+          description: "99th percentile latency is {{ $value }}s."
+
+      - alert: APIKeyExhausted
+        expr: synapse_api_key_remaining_requests < 100
+        for: 5m
+        labels:
+          severity: info
+        annotations:
+          summary: "API key quota nearly exhausted"
+          description: "API key {{ $labels.key_id }} has {{ $value }} requests remaining."
